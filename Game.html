@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <title> My Melon Falling Game </title>
+ </head>
+
+<body>
+<canvas id="myCanvas" width=300 height=300 style="background:url(https://s2js.com/Slumberr/Plava.jpg); background-size: cover">
+  </canvas> 
+<script>
+
+ var ctx = myCanvas.getContext("2d");
+
+ 
+ var bee_x = 0;                                           //Var & Img bug
+ var bee_y = 0;
+ var BeeImg = new Image();
+ BeeImg.src = "https://s2js.com/Slumberr/Bee2.png"; 
+
+ var honey_x = 0;
+ var honey_x_speed = 1.5;                                   //Var & Img honey
+ var honey_y = 0;
+ var HoneyImg = new Image();
+ HoneyImg.src = "https://s2js.com/Slumberr/Hun.png";  
+ 
+ var water_x = 0;
+ var water_x_speed = 1;
+ var water_y = 0                                             //Var & Img water
+ var WaterImg = new Image();
+ WaterImg.src = "https://s2js.com/Slumberr/Water.png"
+
+ var KeySpeed = 10                       
+ var score_player_1 = 0;                           //Spēles sākuma vienības
+ var honey_speed = 3;                  
+ var water_speed = 2.5;              
+ var FPS = 40;                       
+ var time_remaining = 180;              //Spēles laiks
+
+
+ function restart_game() {               // Funkcija, kas restartēs, sāks spēli no sākuma
+   
+     time_remaining = 180;
+     score_player_1 = 0;
+     honey_speed = 3;
+     honey_y = 0
+     water_speed = 2.5
+     water_y = 0
+     }
+
+ function ImagesTouching(x1, y1, img1, x2, y2, img2) {                   // Funkcija, kas pārbaudīs vai attēli saskaras
+         
+          if (x1 >= x2+img2.width || x1+img1.width <= x2) return false;   
+          if (y1 >= y2+img2.height || y1+img1.height <= y2) return false; 
+          return true;                                                       
+          }
+
+ 
+ function Do_a_Frame () {                                             //funkcija, kas pārsvarā kontrolē/parāda spēli, kad tā tiek spēlēta
+    ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);                 
+    bee_y = myCanvas.height - BeeImg.height
+    ctx.fillStyle= "purple";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + score_player_1, 0, 20);           // Parāda spēlētāja punktu skaitu
+    
+
+    ctx.drawImage(BeeImg, bee_x, bee_y);    //Parāda kukaini                                
+
+    ctx.fillStyle="red"
+    ctx.fillText("Time Remaining: " + Math.round(time_remaining), 0, 45); //Parāda cik laiks palicis
+
+    if (time_remaining <= 0) {                                            //Ja laiks beidzies
+          ctx.fillStyle= "red";
+          ctx.font = "bold 50px Arial";                                   // Parādi šo
+          ctx.textAlign="center";
+          ctx.fillText("Game Over", myCanvas.width / 2, myCanvas.height / 2);  
+          ctx.font = "bold 20px Arial";
+          ctx.fillText("Press S to play again", myCanvas.width / 2, (myCanvas.height / 2)+50);
+          ctx.textAlign="left";
+          }
+    else {
+        
+          time_remaining = time_remaining - 1/FPS;      // Citādi, turpini atskaitīt laiku
+          
+      
+
+          honey_y = honey_y + honey_speed;                                
+
+          if (honey_y > myCanvas.height) {                                // Ja medus nogājis aiz apakšas
+              honey_y= 0;                                                 // Pārvieto to atpakaļ augšā
+              honey_x= Math.random() * (myCanvas.width - HoneyImg.width);
+              score_player_1 = score_player_1 - 1
+              honey_speed = honey_speed - 0.5                //Palēlina medus kritumu un kustību.
+              KeySpeed = KeySpeed - 0.5
+              }  
+              
+        if (honey_y > 2) {
+            
+            honey_x = honey_x + honey_x_speed
+        }
+         
+        if (honey_x > myCanvas.width - HoneyImg.width || honey_x < 0) {
+            honey_x_speed = -honey_x_speed; 
+        
+          }
+          
+          water_y = water_y + water_speed;
+          
+          if (water_y > myCanvas.height) {
+              water_y = 0;
+              water_x = Math.random() * (myCanvas.width - WaterImg.width);
+              water_speed = water_speed + 0.3 
+          }
+        if (water_y > 2) {
+            
+            water_x = water_x + water_x_speed
+              
+          }
+         
+         if (water_x > myCanvas.width - WaterImg.width || water_x < 0 ) {          
+             water_x_speed = -water_x_speed;                                    
+         }
+        
+    }
+    
+    ctx.drawImage(WaterImg, water_x, water_y);      
+    ctx.drawImage(HoneyImg, honey_x, honey_y);     
+
+    if (ImagesTouching(bee_x, bee_y, BeeImg, honey_x, honey_y, HoneyImg)) {  // Pārbauda vai medus noķerts
+        score_player_1 = score_player_1 + 1;                                  // Pievieno vienu punktu                 
+        honey_x= -HoneyImg.width;                                            
+        honey_y= 0;                                                 
+        honey_x= Math.random() * (myCanvas.width - HoneyImg.width);
+                                           
+        }
+        
+    if (ImagesTouching(bee_x, bee_y, BeeImg, honey_x, honey_y, HoneyImg) && KeySpeed <50) {
+        KeySpeed = KeySpeed + 1 //Pāatrina taustiņu kustības ātrumu.
+    }
+     if (ImagesTouching(bee_x, bee_y, BeeImg, honey_x, honey_y, HoneyImg) && honey_speed <40) {
+        honey_speed = honey_speed + 0.9;      //Paātrina medus ātrumu
+    }    
+    if (ImagesTouching(bee_x, bee_y, BeeImg, honey_x, honey_y, HoneyImg) && water_speed <30) {
+        water_speed = water_speed + 0.3;      //Paātrina ūdens kustību
+    }    
+    if (ImagesTouching(bee_x, bee_y, BeeImg, water_x, water_y, WaterImg)) {   //Pārbauda vai uzkritis ūdens
+        score_player_1 = score_player_1 - 1;  //Atņem vienu punktu
+        water_x = -WaterImg.width
+        water_y = 0;
+        water_y = Math.random() * (myCanvas.width - WaterImg.width);
+    }
+    
+    }  
+
+ setInterval(Do_a_Frame, 1000/FPS);                                          
+
+
+ function Bee1Keys (MyEvent) {  //Izveido funkciju, kas izpildīsies, kad tiek nospiesti konkrētie taustiņi
+     
+   if (MyEvent.keyCode == 38 && bee_y > 0) {bee_y = bee_y - KeySpeed} //uz augšu
+   if (MyEvent.keyCode == 40 && bee_y + BeeImg.width < myCanvas.height) {bee_y = bee_y + KeySpeed} //uz leju
+   if (MyEvent.keyCode == 37 && bee_x > 0) {bee_x = bee_x - KeySpeed;}                          // pa kreisi
+   if (MyEvent.keyCode == 39 && bee_x+BeeImg.width < myCanvas.width) {bee_x = bee_x  + KeySpeed;} // pa labi
+   if (MyEvent.keyCode == 88) restart_game();                                            // nospiežot X restartē spēli 
+   MyEvent.preventDefault();
+ } 
+
+
+
+ addEventListener("keydown", Bee1Keys);    //"Klausās" vai tiek nospiesti taustiņi
+
+ myCanvas.width = window.innerWidth - 20;                            
+ myCanvas.height = window.innerHeight - 20;                          // Piepilda visu ekrānu neatkarīgi no ierīces
+
+</script>
+</body>
+</html>
